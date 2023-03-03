@@ -1,0 +1,21 @@
+# Install
+brew install mysql
+brew services start mysql
+mysqladmin -u root password 'secretpassword' // 123456
+
+# Run
+mysql -u root -p
+source /Users/DHunt/Programming/OceanWatch API/create_database.sql;
+
+# Get Port
+ps axu | grep 330
+
+# Stop
+brew services stop mysql
+
+# Reset
+brew remove mysql
+rm -rf /opt/homebrew/var/mysql
+brew install mysql
+mysql.server start
+mysql -uroot
