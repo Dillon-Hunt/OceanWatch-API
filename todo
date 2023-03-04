@@ -1,2 +1,8 @@
 - Clean input
 - Select sighting/attack location on map or auto fill for long & lat
+- Light Mode
+- SQL Injection
+- Put token in user table? Pro vs Con
+- Use 'temp token', username and verification code rather than resending password, revoke immediately after authentication
+- Encrypt passwords
+- Map checks on preload.

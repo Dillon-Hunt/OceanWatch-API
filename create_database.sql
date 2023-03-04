@@ -54,7 +54,8 @@ CREATE TABLE users (
     email VARCHAR(32) NOT NULL,
     password VARCHAR(32) NOT NULL,
     verified BOOLEAN DEFAULT FALSE,
-    verification_code VARCHAR(32) NOT NULL,
+    verification_code VARCHAR(6) NOT NULL,
+    temporary_token VARCHAR(32),
     PRIMARY KEY (username)
 );
 
@@ -119,9 +120,9 @@ INSERT INTO sharks (species_id, name, length) VALUES
     (1, 'Jerry', 2.5),
     (2, 'Frank', 1.5);
 
-INSERT INTO users (username, first_name, last_name, email, password, verification_code) VALUES
-    ('Dillon_Hunt', 'Dillon', 'Hunt', 'dhunt@saac.qld.edu.au', '123abc#', '89H3J1'),
-    ('Generic_User', 'Jane', 'Doe', 'example@example.com', 'n0t_a_rob0t', '123456');
+INSERT INTO users (username, first_name, last_name, email, password, verification_code, temporary_token) VALUES
+    ('Dillon_Hunt', 'Dillon', 'Hunt', 'dhunt@saac.qld.edu.au', '123abc#', '89H3J1', 'jHzc4Ass4WvNnEz351fUqbS1cBkxHi4U'),
+    ('Generic_User', 'Jane', 'Doe', 'example@example.com', 'n0t_a_rob0t', '123456', 'uUhi89g7gG9g7G9g78gbkbid8Giod&bb');
 
 INSERT INTO captures (shark_id, date, location, longitude, latitude, water_temp) VALUES
     (1, 1677639421046, 'Noosa Heads', 153.2, -27.3, 28.9),

@@ -1,7 +1,7 @@
 import { request, Router } from 'express'
 
 import { query_database } from '../index.js'
-import { create_verification_code, authenticate_user, send_verification_email, valid_input } from '../authentication.js'
+import { create_verification_code, create_token, authenticate_user, send_verification_email, valid_input } from '../authentication.js'
 
 const router = Router()
 
@@ -42,14 +42,15 @@ router.post('/', async (req, res, next) => {
     else {
         // Create verification code and authentication token
         const verification_code = create_verification_code(6)
+        const temporary_token = create_token(32)
 
         // Send verification code to email
         send_verification_email(verification_code, user.email, user.first_name, user.last_name, true)
 
         // Create new user
-        const response = await query_database(`INSERT INTO users (username, first_name, last_name, email, password, verification_code) VALUES ('${user.username}', '${user.first_name}', '${user.last_name}', '${user.email}', '${user.password}', '${verification_code}')`)
+        const response = await query_database(`INSERT INTO users (username, first_name, last_name, email, password, verification_code, temporary_token) VALUES ('${user.username}', '${user.first_name}', '${user.last_name}', '${user.email}', '${user.password}', '${verification_code}', '${temporary_token}')`)
         if (response.error !== null) res.status(400).send(response.error)
-        else res.status(201).send({ message: 'User created successfully.' })
+        else res.status(201).send({ message: 'User created successfully.', temporary_token: temporary_token })
     }
 })
 
