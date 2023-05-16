@@ -12,7 +12,7 @@ import { captures_router } from './routes/captures.js'
 import { sharks_router } from './routes/sharks.js'
 import { sightings_router } from './routes/sightings.js'
 import { species_router } from './routes/species.js'
-import { tokens_router } from './routes/tokens.js'
+import { upload_router } from './routes/upload.js'
 import { users_router } from './routes/users.js'
 
 const CONNECTION_PARAMS = {
@@ -24,22 +24,20 @@ const CONNECTION_PARAMS = {
 }
 
 const app = express()
-const PORT = 3000
-app.use(express.json())
-app.use(cors())
-app.use(express.urlencoded({
-    extended: true,
-}))
+const PORT = 3005
 
-export const query_database = async (query) => {
+app.use(cors())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+export const query_database = async (query, params) => {
     const connection = mysql.createConnection(CONNECTION_PARAMS)
     const error = await connection.connect()
     
     if (error) return { error: error, result: null }
     return await new Promise(callback => 
-        connection.query(query, (error, result) => {
+        connection.query(query, params, (error, result) => {
             connection.end()
-            // console.log(`\n- ${query}`)
             callback({ error: error, result: result })
         })
     )
@@ -60,7 +58,7 @@ app.use('/captures', captures_router)
 app.use('/sharks', sharks_router)
 app.use('/sightings', sightings_router)
 app.use('/species', species_router)
-app.use('/tokens', tokens_router)
+app.use('/upload', upload_router)
 app.use('/users', users_router)
 
 app.use((err, req, res, next) => {

@@ -1,15 +1,36 @@
+import { hashSync, compare } from 'bcrypt'
 import { createTransport } from 'nodemailer'
+import { config } from 'dotenv'
+import jwt from 'jsonwebtoken'
 
 import { query_database } from './index.js'
+
+config()
 
 // Authentication Functions
 const transporter = createTransport({
     service: 'gmail',
     auth: {
       user: 'noreply.oceanwatch@gmail.com',
-      pass: 'fjeijnechuirhsyd'
+      pass: process.env.GMAIL_PASSWORD
     }
-});
+})
+
+function hash_password(password) {
+    return hashSync(password, 10)
+}
+
+async function compare_password(password, hashed_password) {
+    return await compare(password, hashed_password)
+}
+
+function generate_jwt(user) {
+    return jwt.sign(user, process.env.SECRET) // { expiresIn: '1h' }
+}
+
+function verify_jwt(token) {
+    return jwt.verify(token, process.env.SECRET)
+}
 
 function create_token(length) {
     const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -33,12 +54,16 @@ function create_verification_code(length) {
     return pin
 }
 
-async function authenticate_user(username, token) {
-    const response = await query_database(`SELECT * FROM tokens WHERE username = '${username}' AND token = '${token}'`)
-    if (response.error !== null || response.result.length !== 1) return { status: false }
+async function authenticate_user(token) {
+    const jwt_content = verify_jwt(token)
+
+    if (jwt_content === undefined) return { status: false }
     else {
-        const response = await query_database(`SELECT verified FROM users WHERE username = '${username}'`)
-        return { status: true, verified: response.result[0].verified}
+        const response = await query_database(`SELECT hashed_token, verified FROM users WHERE username = '${jwt_content.username}'`)
+        if (response.error !== null || response.result.length !== 1 || await !compare_password(jwt_content.token, response.result[0].hashed_token)) return { status: false }
+        else {
+            return { status: true, verified: response.result[0].verified }
+        }
     }
 }
 
@@ -61,4 +86,4 @@ function valid_input(...input) {
     return true
 }
 
-export { create_token, create_verification_code, authenticate_user, send_verification_email, valid_input }
+export { hash_password, compare_password, generate_jwt, verify_jwt, create_token, create_verification_code, authenticate_user, send_verification_email, valid_input }
